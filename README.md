@@ -22,22 +22,465 @@ __2. 기존의 다문화 학생의 복지의 문제점__
 
 __결론 : 다문화 가정의 교육 지원이 필요하다__
 
+
+
 ## 데이터 수집
 + 공공데이터 포털에서 데이터 수집
-  + 서울 특별시 사회복지시설(다문화가족복지시설) 목록
-  + 서울시 다문화 가구 현황 통계
-  + 강서구 사회복지시설 목록
+
   + 서울특별시 사회복지시설 목록
-  + 서울 다문화 가정 학생 현황 통계
+
+  + 강서구 사회복지시설 목록
+
+  + 서울시 다문화 가구 현황 통계
+
+  + 2013~2021 서울시 다문화가정 학생 수
+
   + 강서구 초등학교 위치 데이터
 
-## 데이터 전처리
-+ 서울 특별시 사회복지시설(다문화가족복지시설) 목록
-  + 데이터 확인
-    ```import pandas as pd
-import numpy as np
+  + 강서구 아동 복지시설 위치 데이터
 
-seoul_welfare = pd.read_csv("../data/서울특별시 사회복지시설 목록.csv",encoding = "cp949")```
+    
+
+## 데이터 전처리
+### 서울 특별시 사회복지시설 목록
+
++ 데이터 확인
+  ```import pandas as pd
+  import pandas as pd
+  import numpy as np
+  
+  seoul_welfare = pd.read_csv("../data/서울특별시 사회복지시설 목록.csv",encoding = "cp949")
+  ```
+  
++ 서울특별시 사회복지시설 목록 데이터는 다음과 같은 칼럼을 가진다.
+
+| 시설명 | 시설코드 | 시설종류명(시설유형) | 시설종류상세명(시설종류) | 자치구(시)구분 | 시설장명 | 시군구코드 | 시군구명 | 시설주소 |
+| ------ | -------- | -------------------- | ------------------------ | -------------- | -------- | ---------- | -------- | -------- |
+
++ 시설종류에 따른 복지시설의 목록을 확인하기 위하여 시설 종류를 구분한다.
+
++ 시설종류는 노인, 아동, 장애인, 한부모가족, 정신보건, 건강가정, 다문화, 저소득, 일반으로 구분되었다.
+
+  각각의 카테고리에 맞는 데이터를 저장하고, 데이터프레임으로 변환하였다.
+
+  ```python
+  seoul_welfare_facility = []
+  for row in seoul_welfare["시설종류명(시설유형)"]:
+      if "노인" in row:
+          seoul_welfare_facility.append("노인")
+      elif "아동" in row:
+          seoul_welfare_facility.append("아동")
+      elif "장애인" in row:
+          seoul_welfare_facility.append("장애인")
+      elif "한부모가족" in row:
+          seoul_welfare_facility.append("한부모가족")
+      elif "정신보건" in row:
+          seoul_welfare_facility.append("정신보건")
+      elif "건강가전" in row:
+          seoul_welfare_facility.append("건강가전")
+      elif "다문화" in row:
+          seoul_welfare_facility.append("다문화")
+      elif "저소득" in row:
+          seoul_welfare_facility.append("저소득")
+      else:
+          seoul_welfare_facility.append("일반")
+  seoul_welfare_facility = pd.DataFrame(seoul_welfare_facility,columns=["시설종류"])
+  ```
+
+### 강서구 사회복지시설 목록
+
++ 데이터 확인
+
+  ```python
+  import pandas as pd
+  import numpy as np
+  
+  gangseo_welfare = pd.read_csv("../data/강서구 복지시설.csv")
+  ```
+
++ 강서구 사회복지시설 목록 데이터는 다음과 같은 칼럼을 가진다.
+
+  | 시설명 | 시설코드 | 시설종류명(시설유형) | 시설종류상세명(시설종류) | 자치구(시)구분 | 시설장명 | 시군구코드 | 시군구명 | 시설주소 | 위도 | 경도 |
+  | ------ | -------- | -------------------- | ------------------------ | -------------- | -------- | ---------- | -------- | -------- | ---- | ---- |
+
++ 시설종류에 따른 복지시설의 목록을 확인하기 위하여 시설 종류를 구분한다.
+
++ 시설종류는 노인, 아동, 장애인, 한부모가족, 정신보건, 건강가정, 다문화, 저소득, 일반으로 구분되었다.
+
+  각각의 카테고리에 맞는 데이터를 저장하고, 데이터프레임으로 변환하였다.
+
+  ```python
+  gangseo_welfare_facility = []
+  for row in gangseo_welfare["시설종류명(시설유형)"]:
+      if "노인" in row:
+          gangseo_welfare_facility.append("노인")
+      elif "아동" in row:
+          gangseo_welfare_facility.append("아동")
+      elif "장애인" in row:
+          gangseo_welfare_facility.append("장애인")
+      elif "한부모가족" in row:
+          gangseo_welfare_facility.append("한부모가족")
+      elif "정신보건" in row:
+          gangseo_welfare_facility.append("정신보건")
+      elif "건강가전" in row:
+          gangseo_welfare_facility.append("건강가전")
+      elif "다문화" in row:
+          gangseo_welfare_facility.append("다문화")
+      elif "저소득" in row:
+          gangseo_welfare_facility.append("저소득")
+      elif "일반" in row:
+          gangseo_welfare_facility.append("일반")
+  
+  gangseo_welfare_facility = pd.DataFrame(gangseo_welfare_facility,columns=["시설종류"])
+  ```
+
++ 서울시 사회복지시설 목록과 강서구 사회복지시설 목록을 비교시각화하기 위해 데이터를 병합하였다.
+
+  ```python
+  # 강서구 데이터 전처리
+  gangseo_welfare_count = gangseo_welfare_facility.value_counts()
+  gangseo_welfare_count_df = pd.DataFrame(gangseo_welfare_count,columns = ["시설 수"])
+  gangseo_welfare_count_df = gangseo_welfare_count_df.reset_index()
+  gangseo_welfare_count_df["지역"] = "강서구"
+  
+  # 서울시 데이터 전처리
+  seoul_welfare_count = np.round(seoul_welfare_facility.value_counts()/26,1)
+  seoul_welfare_count_df = pd.DataFrame(seoul_welfare_count,columns = ["시설 수"])
+  seoul_welfare_count_df = seoul_welfare_count_df.reset_index()
+  seoul_welfare_count_df["지역"] = "서울전체평균"
+  
+  # 데이터 병합
+  welfare = pd.concat([gangseo_welfare_count_df,seoul_welfare_count_df])
+  ```
+
+  
+
+### 서울시 다문화 가구 현황 통계
+
++ 데이터 확인
+
+  ```python
+  import pandas as pd
+  
+  df=pd.read_csv('다문화가정데이터.csv',thousands=',')
+  ```
+
++ 서울시 다문화 가구 현황 통계는 다음과 같은 칼럼을 가진다.
+
+  | 기간 | 자치구 | 다문화가구 | 총계 | 내국인(출생) | 내국인(귀화) | 외국인(결혼이민자) | 외국인(기타) |
+  | ---: | -----: | ---------: | ---: | -----------: | -----------: | -----------------: | -----------: |
+  |      |        |            |      |              |              |                    |              |
+
++ 기간 데이터에 결측값이 확인되어 결측값을 처리했다
+
+  ```python
+  df1=df.fillna('2020')
+  ```
+
++ 0번째 행은 합계정보에 해당하는 정보를 가지고 있기 때문에 삭제하였다.
+
+  ```python
+  df2=df1.drop(index=0,axis=0)
+  ```
+
+### 2013~2021 서울시 다문화가정 학생 수
+
++ 데이터 확인
+
+  ```python
+  import pandas as pd
+  
+  data = pd.read_excel("../data/2013~2021 다문화가정 학생 수.xls")
+  ```
+
+  | 기간 | 자치구 | 초등학교 | 초등학교.1 |   초등학교.2 |     중학교 | 중학교.1 |     중학교.2 |   고등학교 | 고등학교.1 |   고등학교.2 |            |
+  | ---: | -----: | -------: | ---------: | -----------: | ---------: | -------: | -----------: | ---------: | ---------: | -----------: | ---------- |
+  |    0 |   기간 |   자치구 |         계 | 국제결혼가정 | 외국인가정 |       계 | 국제결혼가정 | 외국인가정 |         계 | 국제결혼가정 | 외국인가정 |
+
++ 강서구 정보만을 확인하기 위해 강서구 정보만을 가져왔다.
+
+  ```python
+  data_sum_g = []
+  for i in range(len(data)):
+      if "강서구" in data.iloc[i]["자치구"]:
+          data_sum_g.append(data.iloc[i])
+  data_sum_g_df = pd.DataFrame(data_sum_g)
+  ```
+
++ 초등학교, 중학교, 고등학교 학생수를 가져오고, 이를 하나의 데이터프레임으로 묶었다
+
+  ```python
+  data_sum_df_g_1 = data_sum_df_g[["기간","자치구","초등학교"]]
+  data_sum_df_g_1["학교구분"] = "초등학교"
+  data_sum_df_g_2 = data_sum_df_g[["기간","자치구","중학교"]]
+  data_sum_df_g_2["학교구분"] = "중학교"
+  data_sum_df_g_3 = data_sum_df_g[["기간","자치구","고등학교"]]
+  data_sum_df_g_3["학교구분"] = "고등학교"
+  
+  data_sum_df_g_1.rename(columns={"초등학교":"학생수"},inplace=True)
+  data_sum_df_g_2.rename(columns={"중학교":"학생수"},inplace=True)
+  data_sum_df_g_3.rename(columns={"고등학교":"학생수"},inplace=True)
+  
+  data_sum_df_g_a = pd.concat([data_sum_df_g_1,data_sum_df_g_2,data_sum_df_g_3])
+  data_sum_df_g_a
+  ```
+
+  | 기간 | 자치구 | 학생수 | 학교구분 |
+  | ---: | -----: | -----: | -------: |
+  |      |        |        |          |
+
++ 서울시 전체 다문화 학생 수를 초등학교, 중학교, 고등학교로 가져왔다.
+
+  ```python
+  data_sum = []
+  for i in range(len(data)):
+      if "합계" in data.iloc[i]["자치구"]:
+          data_sum.append(data.iloc[i])
+  data_sum_df = pd.DataFrame(data_sum)
+  
+  data_sum_df_1 = data_sum_df[["기간","자치구","초등학교"]]
+  data_sum_df_1["학교구분"] = "초등학교"
+  data_sum_df_2 = data_sum_df[["기간","자치구","중학교"]]
+  data_sum_df_2["학교구분"] = "중학교"
+  data_sum_df_3 = data_sum_df[["기간","자치구","고등학교"]]
+  data_sum_df_3["학교구분"] = "고등학교"
+  
+  data_sum_df_1.rename(columns={"초등학교":"학생수"},inplace=True)
+  data_sum_df_2.rename(columns={"중학교":"학생수"},inplace=True)
+  data_sum_df_3.rename(columns={"고등학교":"학생수"},inplace=True)
+  
+  data_sum_df_a = pd.concat([data_sum_df_1,data_sum_df_2,data_sum_df_3])
+  data_sum_df_a
+  ```
+
+### 강서구 초등학교 위치 데이터 & 강서구 아동복지시설 위치 데이터
+
++ 데이터 확인
+
+  ```python
+  import pandas as pd
+  
+  e_data = pd.read_csv("../data/강서구초등학교위도경도.csv")
+  a_data = pd.read_csv("../data/강서구 아동복지시설위도경도.csv")
+  ```
+
+  | 학교명 | 위도 | 경도 |
+  | -----: | ---: | ---: |
+  |        |      |      |
+
+  | 시설명 | 시설코드 | 시설종류명(시설유형) | 시설종류상세명(시설종류) | 자치구(시)구분 | 시설장명 | 시군구코드 | 시군구명 | 시설주소 | 위도 | 경도 |
+  | -----: | -------: | -------------------: | -----------------------: | -------------: | -------: | ---------: | -------: | -------: | ---: | ---: |
+  |        |          |                      |                          |                |          |            |          |          |      |      |
+
++ 아동복지시설 데이터에서 필요한 정보만을 추렸다.
+
+  ```python
+  a_data_c = a_data[["시설명","시설종류명(시설유형)","위도","경도"]]
+  ```
+
++ 아동복지시설의 종류가 다양했지만, 필요한 시설은 지역아동센터였으므로 지역아동센터만을 가져온다.
+
+  ```python
+  a_data_local = []
+  for i in range(len(a_data_c)):
+      if "(아동) 지역아동센터" in a_data_c.iloc[i]["시설종류명(시설유형)"]:
+          a_data_local.append(a_data_c.iloc[i])
+  a_data_local_df = pd.DataFrame(a_data_local)
+  ```
+
++ 아동복지시설 데이터와 초등학교 데이터를 합쳤다.
+
+  + 초등학교 데이터 전처리
+
+    ```python
+    e_data = e_data.rename(columns={"학교명":"시설명"})
+    e_data["시설종류"] = "초등학교"
+    ```
+
+  + 아동복지시설 데이터 전처리
+
+    ```python
+    a_data_local_df = a_data_local_df.drop("시설종류명(시설유형)",axis=1)
+    a_data_local_df["시설종류"] = "지역아동센터"
+    ```
+
+  + 데이터 결합
+
+    ```python
+    data = pd.concat([e_data,a_data_local_df])
+    ```
+
+    
+
+## 데이터 시각화
+
+가져온 데이터가 어떤 정보를 가지고 있는지 확인하기 위하여 시각화를 진행하였다.
+
+시각화는 다음 정보를 기초로 시각화하였다.
+
+1. 강서구 다문화 인구 시각화
+2. 서울시 평균 다문화 가정과 강서구 다문화 가정 수 비교
+3. 강서구 사회복지시설 현황 시각화
+4. 강서구 다문화 학생 비율 시각화
+
+
+
+### 강서구 다문화 인구 시각화
+
++ 서울시 전체 26개 구의 다문화 인구수를 시각화하였다.
+
+  ```python
+  df3 = df2.sort_values('다문화가구', ascending=False)
+  plt.figure(figsize = (16,8))
+  
+  sns.lineplot(
+      x = '자치구',
+      y = '다문화가구',
+      data = df3,
+  )
+  ```
+
+    ![그림입니다.  원본 그림의 이름: CLP0000474c01df.bmp  원본 그림의 크기: 가로 629pixel, 세로 292pixel](README.assets/tmpCE3D.jpg)  
+
+
+
+### 서울시 평균 다문화 가정과 강서구 다문화 가정 수 비교
+
++ 서울시 평균 다문화 가정의 수와 강서구 다문화 가정 수를 비교하였다.
+
+  ```python
+  import matplotlib.pyplot as plt
+  import numpy as np
+  
+  x = np.arange(2)
+  seoul = ['서울시 평균 다문화 가구 수', '강서구 다문화 가구 수']
+  values = [2701.6, 3766]
+  
+  plt.bar(x, values,color=['pink','y'])
+  plt.xticks(x,seoul)
+  
+  plt.show()
+  ```
+
+    ![그림입니다.  원본 그림의 이름: 화면 캡처 2022-03-22 091556.png  원본 그림의 크기: 가로 380pixel, 세로 245pixel](README.assets/EMB00004f502058.png)  
+
++ 서울시 평균 다문화 가정 인구수와 강서구 다문화 가정 인구수를 비교하였다.
+
+  ```python
+  import matplotlib.pyplot as plt
+  import numpy as np
+  
+  x = np.arange(2)
+  seoul = ['서울시 평균 다문화 가구 수', '강서구 다문화 가구 수']
+  values = [2701.6, 3766]
+  
+  plt.bar(x, values,color=['pink','y'])
+  plt.xticks(x,seoul)
+  
+  plt.show()
+  ```
+
+    ![그림입니다.  원본 그림의 이름: 화면 캡처 2022-03-22 093011.png  원본 그림의 크기: 가로 385pixel, 세로 245pixel](README.assets/EMB00004f502059.png)  
+
+  
+
+### 서울시 복지시설 및 강서구 복지시설 현황
+
++ 강서구 복지시설 현황을 시각화하였다.
+
+  ```python
+  import matplotlib.pyplot as plt
+  import seaborn as sns
+  
+  sns.set_style("ticks")
+  sns.set(rc = {'figure.figsize':(15,8)})
+  plt.rc('font',family = 'Malgun Gothic')
+  plt.title("강서구 복지시설 종류 현황")
+  ax = sns.countplot(x = "시설종류",data = gangseo_welfare_facility)
+  for p in ax.patches:
+      height = p.get_height()
+      ax.text(p.get_x() + p.get_width() / 2., height + 1, height, ha = 'center', size = 15)
+  plt.show()
+  ```
+
+    ![그림입니다.  원본 그림의 이름: 화면 캡처 2022-03-22 095636.png  원본 그림의 크기: 가로 882pixel, 세로 494pixel](README.assets/EMB00004f50205a.png)  
+
++ 서울시 복지시설 현황을 시각화하였다.
+
+  ```python
+  sns.set_style("ticks")
+  sns.set(rc = {'figure.figsize':(15,8)})
+  plt.rc('font',family = 'Malgun Gothic')
+  plt.title("서울시 전체 복지시설 종류 현황")
+  ax = sns.countplot(x = "시설종류",data = seoul_welfare_facility)
+  for p in ax.patches:
+      height = p.get_height()
+      ax.text(p.get_x() + p.get_width() / 2., height + 1, height, ha = 'center', size = 15)
+  plt.show()
+  ```
+
+    ![그림입니다.  원본 그림의 이름: 화면 캡처 2022-03-22 100001.png  원본 그림의 크기: 가로 893pixel, 세로 490pixel](README.assets/EMB00004f50205b.png)  
+
++ 서울시 복지시설 평균과 강서구 복지시설 수를 비교하였다.
+
+  ```python
+  import seaborn as sns
+  p = sns.barplot(x=welfare["시설종류"],y=welfare["시설 수"],hue=welfare["지역"])
+  plt.title("강서구 - 서울 복지시설 비교")
+  plt.show()
+  ```
+
+    ![그림입니다.  원본 그림의 이름: 화면 캡처 2022-03-22 100225.png  원본 그림의 크기: 가로 883pixel, 세로 479pixel](README.assets/EMB00004f50205c.png)  
+
+
+
+### 다문화 학생 비율 시각화
+
++ 강서구에 거주하는 다문화 학생 수를 초등학교, 중학교, 고등학교로 나누어 시각화하였다.
+
+    ![그림입니다.  원본 그림의 이름: CLP00004b1402ba.bmp  원본 그림의 크기: 가로 687pixel, 세로 455pixel](README.assets/tmpFF57.jpg)  
+
++ 연도별로 강서구 다문화 학생 수가 어떻게 변화하는지 시각화하였다.
+
+  ```python
+  import matplotlib.pyplot as plt
+  import seaborn as sns
+  
+  sns.set_style("ticks")
+  plt.rc('font',family = 'Malgun Gothic')
+  p = sns.barplot(x=data_sum_df_g_a["기간"],y=data_sum_df_g_a["학생수"],hue=data_sum_df_g_a["학교구분"])
+  plt.title("강서구 다문화 학생 수 변화 추이")
+  plt.show()
+  ```
+
+    ![그림입니다.  원본 그림의 이름: CLP000074200001.bmp  원본 그림의 크기: 가로 381pixel, 세로 274pixel](README.assets/tmpB1E4.jpg)  
+
++ 연도별로 서울시 다문화 학생 수가 어떻게 변화하는지 시각화하였다.
+
+  ```python
+  import matplotlib.pyplot as plt
+  import seaborn as sns
+  
+  sns.set_style("ticks")
+  plt.rc('font',family = 'Malgun Gothic')
+  p = sns.barplot(x=data_sum_df_a["기간"],y=data_sum_df_a["학생수"],hue=data_sum_df_a["학교구분"])
+  plt.title("서울 전체 다문화 학생 수 변화 추이")
+  plt.show()
+  ```
+
+    ![그림입니다.  원본 그림의 이름: CLP000074200002.bmp  원본 그림의 크기: 가로 393pixel, 세로 270pixel](README.assets/tmp4466.jpg)  
+
+
+
+## 시각화 결과 해석
+
+
+
+## 분석 모형 및 결과 해석
+
+
+
+## 결론
 
 
 
