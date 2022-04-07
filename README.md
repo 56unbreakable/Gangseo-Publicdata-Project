@@ -41,7 +41,8 @@ __결론 : 다문화 가정의 교육 지원이 필요하다__
 
     
 
-## 데이터 전처리
+## 데이터 확인 및 전처리
+
 ### 서울 특별시 사회복지시설 목록
 
 + 데이터 확인
@@ -61,31 +62,6 @@ __결론 : 다문화 가정의 교육 지원이 필요하다__
 
 + 시설종류는 노인, 아동, 장애인, 한부모가족, 정신보건, 건강가정, 다문화, 저소득, 일반으로 구분되었다.
 
-  각각의 카테고리에 맞는 데이터를 저장하고, 데이터프레임으로 변환하였다.
-
-  ```python
-  seoul_welfare_facility = []
-  for row in seoul_welfare["시설종류명(시설유형)"]:
-      if "노인" in row:
-          seoul_welfare_facility.append("노인")
-      elif "아동" in row:
-          seoul_welfare_facility.append("아동")
-      elif "장애인" in row:
-          seoul_welfare_facility.append("장애인")
-      elif "한부모가족" in row:
-          seoul_welfare_facility.append("한부모가족")
-      elif "정신보건" in row:
-          seoul_welfare_facility.append("정신보건")
-      elif "건강가전" in row:
-          seoul_welfare_facility.append("건강가전")
-      elif "다문화" in row:
-          seoul_welfare_facility.append("다문화")
-      elif "저소득" in row:
-          seoul_welfare_facility.append("저소득")
-      else:
-          seoul_welfare_facility.append("일반")
-  seoul_welfare_facility = pd.DataFrame(seoul_welfare_facility,columns=["시설종류"])
-  ```
 
 ### 강서구 사회복지시설 목록
 
@@ -107,53 +83,6 @@ __결론 : 다문화 가정의 교육 지원이 필요하다__
 
 + 시설종류는 노인, 아동, 장애인, 한부모가족, 정신보건, 건강가정, 다문화, 저소득, 일반으로 구분되었다.
 
-  각각의 카테고리에 맞는 데이터를 저장하고, 데이터프레임으로 변환하였다.
-
-  ```python
-  gangseo_welfare_facility = []
-  for row in gangseo_welfare["시설종류명(시설유형)"]:
-      if "노인" in row:
-          gangseo_welfare_facility.append("노인")
-      elif "아동" in row:
-          gangseo_welfare_facility.append("아동")
-      elif "장애인" in row:
-          gangseo_welfare_facility.append("장애인")
-      elif "한부모가족" in row:
-          gangseo_welfare_facility.append("한부모가족")
-      elif "정신보건" in row:
-          gangseo_welfare_facility.append("정신보건")
-      elif "건강가전" in row:
-          gangseo_welfare_facility.append("건강가전")
-      elif "다문화" in row:
-          gangseo_welfare_facility.append("다문화")
-      elif "저소득" in row:
-          gangseo_welfare_facility.append("저소득")
-      elif "일반" in row:
-          gangseo_welfare_facility.append("일반")
-  
-  gangseo_welfare_facility = pd.DataFrame(gangseo_welfare_facility,columns=["시설종류"])
-  ```
-
-+ 서울시 사회복지시설 목록과 강서구 사회복지시설 목록을 비교시각화하기 위해 데이터를 병합하였다.
-
-  ```python
-  # 강서구 데이터 전처리
-  gangseo_welfare_count = gangseo_welfare_facility.value_counts()
-  gangseo_welfare_count_df = pd.DataFrame(gangseo_welfare_count,columns = ["시설 수"])
-  gangseo_welfare_count_df = gangseo_welfare_count_df.reset_index()
-  gangseo_welfare_count_df["지역"] = "강서구"
-  
-  # 서울시 데이터 전처리
-  seoul_welfare_count = np.round(seoul_welfare_facility.value_counts()/26,1)
-  seoul_welfare_count_df = pd.DataFrame(seoul_welfare_count,columns = ["시설 수"])
-  seoul_welfare_count_df = seoul_welfare_count_df.reset_index()
-  seoul_welfare_count_df["지역"] = "서울전체평균"
-  
-  # 데이터 병합
-  welfare = pd.concat([gangseo_welfare_count_df,seoul_welfare_count_df])
-  ```
-
-  
 
 ### 서울시 다문화 가구 현황 통계
 
@@ -197,7 +126,7 @@ __결론 : 다문화 가정의 교육 지원이 필요하다__
   | ---: | -----: | -------: | ---------: | -----------: | ---------: | -------: | -----------: | ---------: | ---------: | -----------: | ---------- |
   |    0 |   기간 |   자치구 |         계 | 국제결혼가정 | 외국인가정 |       계 | 국제결혼가정 | 외국인가정 |         계 | 국제결혼가정 | 외국인가정 |
 
-+ 강서구 정보만을 확인하기 위해 강서구 정보만을 가져왔다.
++ 강서구 다문화 학생의 수를 분리하였다.
 
   ```python
   data_sum_g = []
@@ -205,52 +134,6 @@ __결론 : 다문화 가정의 교육 지원이 필요하다__
       if "강서구" in data.iloc[i]["자치구"]:
           data_sum_g.append(data.iloc[i])
   data_sum_g_df = pd.DataFrame(data_sum_g)
-  ```
-
-+ 초등학교, 중학교, 고등학교 학생수를 가져오고, 이를 하나의 데이터프레임으로 묶었다
-
-  ```python
-  data_sum_df_g_1 = data_sum_df_g[["기간","자치구","초등학교"]]
-  data_sum_df_g_1["학교구분"] = "초등학교"
-  data_sum_df_g_2 = data_sum_df_g[["기간","자치구","중학교"]]
-  data_sum_df_g_2["학교구분"] = "중학교"
-  data_sum_df_g_3 = data_sum_df_g[["기간","자치구","고등학교"]]
-  data_sum_df_g_3["학교구분"] = "고등학교"
-  
-  data_sum_df_g_1.rename(columns={"초등학교":"학생수"},inplace=True)
-  data_sum_df_g_2.rename(columns={"중학교":"학생수"},inplace=True)
-  data_sum_df_g_3.rename(columns={"고등학교":"학생수"},inplace=True)
-  
-  data_sum_df_g_a = pd.concat([data_sum_df_g_1,data_sum_df_g_2,data_sum_df_g_3])
-  data_sum_df_g_a
-  ```
-
-  | 기간 | 자치구 | 학생수 | 학교구분 |
-  | ---: | -----: | -----: | -------: |
-  |      |        |        |          |
-
-+ 서울시 전체 다문화 학생 수를 초등학교, 중학교, 고등학교로 가져왔다.
-
-  ```python
-  data_sum = []
-  for i in range(len(data)):
-      if "합계" in data.iloc[i]["자치구"]:
-          data_sum.append(data.iloc[i])
-  data_sum_df = pd.DataFrame(data_sum)
-  
-  data_sum_df_1 = data_sum_df[["기간","자치구","초등학교"]]
-  data_sum_df_1["학교구분"] = "초등학교"
-  data_sum_df_2 = data_sum_df[["기간","자치구","중학교"]]
-  data_sum_df_2["학교구분"] = "중학교"
-  data_sum_df_3 = data_sum_df[["기간","자치구","고등학교"]]
-  data_sum_df_3["학교구분"] = "고등학교"
-  
-  data_sum_df_1.rename(columns={"초등학교":"학생수"},inplace=True)
-  data_sum_df_2.rename(columns={"중학교":"학생수"},inplace=True)
-  data_sum_df_3.rename(columns={"고등학교":"학생수"},inplace=True)
-  
-  data_sum_df_a = pd.concat([data_sum_df_1,data_sum_df_2,data_sum_df_3])
-  data_sum_df_a
   ```
 
 ### 강서구 초등학교 위치 데이터 & 강서구 아동복지시설 위치 데이터
@@ -278,39 +161,8 @@ __결론 : 다문화 가정의 교육 지원이 필요하다__
   a_data_c = a_data[["시설명","시설종류명(시설유형)","위도","경도"]]
   ```
 
-+ 아동복지시설의 종류가 다양했지만, 필요한 시설은 지역아동센터였으므로 지역아동센터만을 가져온다.
+  
 
-  ```python
-  a_data_local = []
-  for i in range(len(a_data_c)):
-      if "(아동) 지역아동센터" in a_data_c.iloc[i]["시설종류명(시설유형)"]:
-          a_data_local.append(a_data_c.iloc[i])
-  a_data_local_df = pd.DataFrame(a_data_local)
-  ```
-
-+ 아동복지시설 데이터와 초등학교 데이터를 합쳤다.
-
-  + 초등학교 데이터 전처리
-
-    ```python
-    e_data = e_data.rename(columns={"학교명":"시설명"})
-    e_data["시설종류"] = "초등학교"
-    ```
-
-  + 아동복지시설 데이터 전처리
-
-    ```python
-    a_data_local_df = a_data_local_df.drop("시설종류명(시설유형)",axis=1)
-    a_data_local_df["시설종류"] = "지역아동센터"
-    ```
-
-  + 데이터 결합
-
-    ```python
-    data = pd.concat([e_data,a_data_local_df])
-    ```
-
-    
 
 ## 데이터 시각화
 
@@ -388,6 +240,78 @@ __결론 : 다문화 가정의 교육 지원이 필요하다__
 
 ### 서울시 복지시설 및 강서구 복지시설 현황
 
++ 서울시 복지시설의 시설종류 만을 저장하였다.
+
+  ```python
+  seoul_welfare_facility = []
+  for row in seoul_welfare["시설종류명(시설유형)"]:
+      if "노인" in row:
+          seoul_welfare_facility.append("노인")
+      elif "아동" in row:
+          seoul_welfare_facility.append("아동")
+      elif "장애인" in row:
+          seoul_welfare_facility.append("장애인")
+      elif "한부모가족" in row:
+          seoul_welfare_facility.append("한부모가족")
+      elif "정신보건" in row:
+          seoul_welfare_facility.append("정신보건")
+      elif "건강가전" in row:
+          seoul_welfare_facility.append("건강가전")
+      elif "다문화" in row:
+          seoul_welfare_facility.append("다문화")
+      elif "저소득" in row:
+          seoul_welfare_facility.append("저소득")
+      else:
+          seoul_welfare_facility.append("일반")
+  seoul_welfare_facility = pd.DataFrame(seoul_welfare_facility,columns=["시설종류"])
+  ```
+
++ 강서구 복지시설의 시설종류 만을 저장하였다.
+
+  ```python
+  gangseo_welfare_facility = []
+  for row in gangseo_welfare["시설종류명(시설유형)"]:
+      if "노인" in row:
+          gangseo_welfare_facility.append("노인")
+      elif "아동" in row:
+          gangseo_welfare_facility.append("아동")
+      elif "장애인" in row:
+          gangseo_welfare_facility.append("장애인")
+      elif "한부모가족" in row:
+          gangseo_welfare_facility.append("한부모가족")
+      elif "정신보건" in row:
+          gangseo_welfare_facility.append("정신보건")
+      elif "건강가전" in row:
+          gangseo_welfare_facility.append("건강가전")
+      elif "다문화" in row:
+          gangseo_welfare_facility.append("다문화")
+      elif "저소득" in row:
+          gangseo_welfare_facility.append("저소득")
+      elif "일반" in row:
+          gangseo_welfare_facility.append("일반")
+  
+  gangseo_welfare_facility = pd.DataFrame(gangseo_welfare_facility,columns=["시설종류"])
+  ```
+
++ 비교시각화를 위해 두 데이터를 병합하였다.
+
+  ```python
+  # 강서구 데이터 전처리
+  gangseo_welfare_count = gangseo_welfare_facility.value_counts()
+  gangseo_welfare_count_df = pd.DataFrame(gangseo_welfare_count,columns = ["시설 수"])
+  gangseo_welfare_count_df = gangseo_welfare_count_df.reset_index()
+  gangseo_welfare_count_df["지역"] = "강서구"
+  
+  # 서울시 데이터 전처리
+  seoul_welfare_count = np.round(seoul_welfare_facility.value_counts()/26,1)
+  seoul_welfare_count_df = pd.DataFrame(seoul_welfare_count,columns = ["시설 수"])
+  seoul_welfare_count_df = seoul_welfare_count_df.reset_index()
+  seoul_welfare_count_df["지역"] = "서울전체평균"
+  
+  # 데이터 병합
+  welfare = pd.concat([gangseo_welfare_count_df,seoul_welfare_count_df])
+  ```
+
 + 강서구 복지시설 현황을 시각화하였다.
 
   ```python
@@ -442,11 +366,25 @@ __결론 : 다문화 가정의 교육 지원이 필요하다__
 
 ### 다문화 학생 비율 시각화
 
-+ 강서구에 거주하는 다문화 학생 수를 초등학교, 중학교, 고등학교로 나누어 시각화하였다.
++ 초등학교, 중학교, 고등학교 학생수에 대한 정보를 행으로 결합하였다.
 
-    ![그림입니다.  원본 그림의 이름: CLP00004b1402ba.bmp  원본 그림의 크기: 가로 687pixel, 세로 455pixel](README.assets/tmpFF57.jpg)  
+  ```python
+  data_sum_df_g_1 = data_sum_df_g[["기간","자치구","초등학교"]]
+  data_sum_df_g_1["학교구분"] = "초등학교"
+  data_sum_df_g_2 = data_sum_df_g[["기간","자치구","중학교"]]
+  data_sum_df_g_2["학교구분"] = "중학교"
+  data_sum_df_g_3 = data_sum_df_g[["기간","자치구","고등학교"]]
+  data_sum_df_g_3["학교구분"] = "고등학교"
+  
+  data_sum_df_g_1.rename(columns={"초등학교":"학생수"},inplace=True)
+  data_sum_df_g_2.rename(columns={"중학교":"학생수"},inplace=True)
+  data_sum_df_g_3.rename(columns={"고등학교":"학생수"},inplace=True)
+  
+  data_sum_df_g_a = pd.concat([data_sum_df_g_1,data_sum_df_g_2,data_sum_df_g_3])
+  data_sum_df_g_a
+  ```
 
-+ 연도별로 강서구 다문화 학생 수가 어떻게 변화하는지 시각화하였다.
++ 연도별로 강서구 다문화 학생 수가 어떻게 변화하는지 시각화하였다. 2013년부터 2021년까지 강서구의 전체 다문화 학생을 초등학생, 중학생, 고등학생으로 나누어 보여준다.
 
   ```python
   import matplotlib.pyplot as plt
@@ -461,7 +399,7 @@ __결론 : 다문화 가정의 교육 지원이 필요하다__
 
     ![그림입니다.  원본 그림의 이름: CLP000074200001.bmp  원본 그림의 크기: 가로 381pixel, 세로 274pixel](README.assets/tmpB1E4.jpg)  
 
-+ 연도별로 서울시 다문화 학생 수가 어떻게 변화하는지 시각화하였다.
++ 연도별로 서울시 다문화 학생 수가 어떻게 변화하는지 시각화하였다. 2013년부터 2021년까지 강서구의 전체 다문화 학생을 초등학생, 중학생, 고등학생으로 나누어 보여준다.
 
   ```python
   import matplotlib.pyplot as plt
@@ -516,6 +454,28 @@ __결론 : 다문화 가정의 교육 지원이 필요하다__
 + 이 분석 방법은 각 데이터의 유사성을 측정하여 집단으로 분류하고, 각 집단에 속한 개체들의 유사성과 다른 집단과의 차이점을 찾는 방법이다. 비슷한 특성을 합쳐 유사 특성을 가진 집단으로 묶어 분석한다. 집단간의 유사성은 그래프 상의 유클리드 거리를 이용하여 구할 수 있다.
 
 + 이 문제에서는 위치데이터(위도, 경도)를 가지고 유사성을 측정한다. 유클리드 거리를 사용하며, 가까울 수록 유사도가 높아 같은 군집에 속하게 된다.
+
++ 우선 주어진 데이터에서 아동복지시설의 종류가 다양했지만, 필요한 시설은 지역아동센터였으므로 지역아동센터만을 가져온다.
+
+  ```python
+  a_data_local = []
+  for i in range(len(a_data_c)):
+      if "(아동) 지역아동센터" in a_data_c.iloc[i]["시설종류명(시설유형)"]:
+          a_data_local.append(a_data_c.iloc[i])
+  a_data_local_df = pd.DataFrame(a_data_local)
+  ```
+
++ 아동복지시설과 초등학교 데이터를 병합하여 사용하였다.
+
+  ```python
+  e_data = e_data.rename(columns={"학교명":"시설명"})
+  e_data["시설종류"] = "초등학교"
+  
+  a_data_local_df = a_data_local_df.drop("시설종류명(시설유형)",axis=1)
+  a_data_local_df["시설종류"] = "지역아동센터"
+  
+  data = pd.concat([e_data,a_data_local_df])
+  ```
 
 + 강서구 초등학교 및 지역아동센터 시각화
 
